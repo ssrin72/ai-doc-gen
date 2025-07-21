@@ -2,8 +2,6 @@
 
 An AI-powered code documentation generator that automatically analyzes repositories and creates comprehensive documentation using advanced language models. The system employs a multi-agent architecture to perform specialized code analysis and generate structured documentation.
 
-**[🇮🇷 Persian README / مستندات فارسی](README.fa.md)**
-
 ## Table of Contents
 
 - [Features](#features)
