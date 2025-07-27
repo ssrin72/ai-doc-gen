@@ -167,7 +167,8 @@ def configure_langfuse():
 
 
 async def main() -> Optional[int]:
-    configure_langfuse()
+    if config.ENABLE_LANGFUSE:
+        configure_langfuse()
 
     try:
         args = parse_args()
