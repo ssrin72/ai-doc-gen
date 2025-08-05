@@ -1,3 +1,4 @@
+import os
 import time
 from pathlib import Path
 from typing import Tuple
@@ -15,7 +16,7 @@ import config
 from utils import Logger, PromptManager
 from utils.custom_models.gemini_provider import CustomGeminiGLA
 
-from .tools import FileReadTool, ListFilesTool
+from .tools import FileReadTool
 
 
 class DocumenterResult(BaseModel):
@@ -80,6 +81,7 @@ class DocumenterAgent:
         self._prompt_manager = PromptManager(file_path=Path(__file__).parent / "prompts" / "documenter.yaml")
 
     async def run(self):
+        Logger.info("Starting documenter agent")
         user_prompt = self._render_prompt("agents.documenter.user_prompt")
         await self._run_agent(
             agent=self._documenter_agent,
@@ -163,7 +165,6 @@ class DocumenterAgent:
             system_prompt=self._render_prompt("agents.documenter.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
-                ListFilesTool().get_tool(),
             ],
             instrument=True,
         )
@@ -175,8 +176,19 @@ class DocumenterAgent:
 
     def _render_prompt(self, prompt_name: str) -> str:
         # Render the template with the config
+        available_ai_docs = []
+
+        ai_docs_dir = self._config.repo_path / ".ai" / "docs"
+        if ai_docs_dir.exists() and ai_docs_dir.is_dir():
+            available_ai_docs = [
+                os.path.join(self._config.repo_path, ".ai", "docs", doc.name)
+                for doc in ai_docs_dir.iterdir()
+                if doc.is_file() and doc.name.endswith(".md")
+            ]
+
         template_vars = {
             "repo_path": str(self._config.repo_path),
+            "available_ai_docs": available_ai_docs,
             **self._config.readme.model_dump(),
         }
 

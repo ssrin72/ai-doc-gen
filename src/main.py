@@ -39,7 +39,11 @@ def configure_logging(
 
 async def analyze(args: argparse.Namespace):
     cfg: AnalyzeHandlerConfig = load_config(args, AnalyzeHandlerConfig, "analyzer")
-    configure_logging(cfg.repo_path)
+    configure_logging(
+        repo_path=cfg.repo_path,
+        file_level=config.FILE_LOG_LEVEL,
+        console_level=config.CONSOLE_LOG_LEVEL,
+    )
 
     handler = AnalyzeHandler(cfg)
 
@@ -48,7 +52,11 @@ async def analyze(args: argparse.Namespace):
 
 async def document(args: argparse.Namespace):
     cfg: ReadmeHandlerConfig = load_config(args, ReadmeHandlerConfig, "documenter")
-    configure_logging(cfg.repo_path)
+    configure_logging(
+        repo_path=cfg.repo_path,
+        file_level=config.FILE_LOG_LEVEL,
+        console_level=config.CONSOLE_LOG_LEVEL,
+    )
 
     handler = ReadmeHandler(cfg)
 
@@ -62,7 +70,11 @@ async def cronjob_analyze(args: argparse.Namespace):
         file_key="cronjob.analyze",
     )
 
-    configure_logging(Path("."), file_level=logging.INFO, console_level=logging.INFO)
+    configure_logging(
+        repo_path=Path("."),
+        file_level=config.FILE_LOG_LEVEL,
+        console_level=config.CONSOLE_LOG_LEVEL,
+    )
 
     gitlab_client = Gitlab(
         url=config.GITLAB_API_URL,
@@ -160,10 +172,13 @@ def configure_langfuse():
     os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"Authorization=Basic {langfuse_auth}"
 
     logfire.configure(
-        service_name="code-documenter",
+        service_name="ai-doc-gen",
         send_to_logfire=False,
         environment=config.ENVIRONMENT,
     )
+
+    logfire.instrument_pydantic_ai()
+    logfire.instrument_httpx(capture_all=True)
 
 
 async def main() -> Optional[int]:

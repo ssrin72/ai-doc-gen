@@ -49,6 +49,7 @@ class AnalyzerAgent:
             raise ValueError("All analysis options are excluded")
 
     async def run(self):
+        Logger.info("Starting analyzer agent")
         tasks = []
         analysis_files = []
 
@@ -112,8 +113,12 @@ class AnalyzerAgent:
                 )
             )
 
+        Logger.debug("Running all agents")
+
         # Run all agents concurrently, continue even if some fail
         results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        Logger.debug("All agents finished")
 
         # Log results for each agent
         for i, result in enumerate(results):
@@ -125,9 +130,15 @@ class AnalyzerAgent:
         self.validate_succession(analysis_files)
 
     def validate_succession(self, analysis_files: List[Path]):
+        missing_files = []
         for file in analysis_files:
             if not file.exists():
-                raise ValueError(f"Analysis file {file.name} does not exist")
+                missing_files.append(file)
+
+        if missing_files:
+            missing_files_str = ", ".join([str(file) for file in missing_files])
+            Logger.warning(f"Some analysis files not found: {missing_files_str}")
+            raise ValueError(f"Some analysis files not found: {missing_files_str}")
 
     async def _run_agent(self, agent: Agent, user_prompt: str, file_path: Path):
         trace.get_current_span().add_event(name=f"Running {agent.name}", attributes={"agent_name": agent.name})
@@ -135,7 +146,7 @@ class AnalyzerAgent:
         try:
             Logger.info(f"Running {agent.name}")
             start_time = time.time()
-            async with agent.run_mcp_servers():
+            async with agent:
                 result: AgentRunResult = await agent.run(
                     user_prompt=user_prompt,
                     output_type=AnalyzerResult,
@@ -156,7 +167,8 @@ class AnalyzerAgent:
                 file_path.parent.mkdir(parents=True, exist_ok=True)
 
             with open(file_path, "w") as f:
-                f.write(result.output.markdown_content)
+                output = self._cleanup_output(result.output.markdown_content)
+                f.write(output)
 
                 Logger.info(f"{agent.name} result saved to {file_path}")
                 trace.get_current_span().set_attribute(f"{agent.name} result", result.output.markdown_content)
@@ -284,3 +296,9 @@ class AnalyzerAgent:
         }
 
         return self._prompt_manager.render_prompt(prompt_name, **template_vars)
+
+    def _cleanup_output(self, output: str) -> str:
+        # Cleanup absolute paths
+        output = output.replace(str(self._config.repo_path), ".")
+
+        return output
