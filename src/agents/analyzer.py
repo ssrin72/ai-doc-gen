@@ -13,7 +13,7 @@ from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.settings import ModelSettings
 
 import config
-from utils import Logger, PromptManager
+from utils import Logger, PromptManager, create_retrying_client
 
 from .tools import FileReadTool, ListFilesTool
 
@@ -182,11 +182,14 @@ class AnalyzerAgent:
 
     @property
     def _llm_model(self) -> Tuple[Model, ModelSettings]:
+        retrying_http_client = create_retrying_client()
+
         model = OpenAIModel(
             model_name=config.ANALYZER_LLM_MODEL,
             provider=OpenAIProvider(
                 base_url=config.ANALYZER_LLM_BASE_URL,
                 api_key=config.ANALYZER_LLM_API_KEY,
+                http_client=retrying_http_client,
             ),
         )
 
