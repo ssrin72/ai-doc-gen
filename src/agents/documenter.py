@@ -13,7 +13,7 @@ from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.settings import ModelSettings
 
 import config
-from utils import Logger, PromptManager
+from utils import Logger, PromptManager, create_retrying_client
 from utils.custom_models.gemini_provider import CustomGeminiGLA
 
 from .tools import FileReadTool
@@ -125,6 +125,8 @@ class DocumenterAgent:
 
     @property
     def _llm_model(self) -> Tuple[Model, ModelSettings]:
+        retrying_http_client = create_retrying_client()
+
         model_name = config.DOCUMENTER_LLM_MODEL
         base_url = config.DOCUMENTER_LLM_BASE_URL
         api_key = config.DOCUMENTER_LLM_API_KEY
@@ -132,7 +134,11 @@ class DocumenterAgent:
         if "gemini" in model_name:
             model = GeminiModel(
                 model_name=model_name,
-                provider=CustomGeminiGLA(api_key=api_key, base_url=base_url),
+                provider=CustomGeminiGLA(
+                    api_key=api_key,
+                    base_url=base_url,
+                    http_client=retrying_http_client,
+                ),
             )
         else:
             model = OpenAIModel(
@@ -140,6 +146,7 @@ class DocumenterAgent:
                 provider=OpenAIProvider(
                     base_url=base_url,
                     api_key=api_key,
+                    http_client=retrying_http_client,
                 ),
             )
 
