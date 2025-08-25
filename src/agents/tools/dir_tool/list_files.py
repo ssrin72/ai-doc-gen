@@ -1,5 +1,6 @@
 import os
 from collections import defaultdict
+from pathlib import Path
 from typing import Any, List, Optional
 
 from opentelemetry import trace
@@ -262,7 +263,8 @@ class ListFilesTool:
 
         for root, _, files in os.walk(directory):
             # Skip ignored directories
-            if self.ignored_dirs and any(ignored_dir in root for ignored_dir in self.ignored_dirs):
+            path_parts = Path(root).parts
+            if self.ignored_dirs and any(ignored_dir in path_parts for ignored_dir in self.ignored_dirs):
                 continue
 
             # Get relative directory path
