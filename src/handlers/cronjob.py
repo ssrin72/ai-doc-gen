@@ -79,7 +79,8 @@ class JobAnalyzeHandler(AbstractHandler):
 
         # Check if project is in ignored subgroups
         for subgroup in IGNORED_SUBGROUPS:
-            if subgroup in project.name_with_namespace.lower():
+            project_subgroups = project.namespace.get("full_path", "").lower().split("/")
+            if subgroup in project_subgroups:
                 return False
 
         # Check if project is in ignored projects
