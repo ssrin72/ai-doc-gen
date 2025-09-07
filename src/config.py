@@ -68,7 +68,6 @@ FILE_LOG_LEVEL = getattr(logging, os.getenv("FILE_LOG_LEVEL", "INFO").upper())
 # Agent Tools Settings
 TOOL_FILE_READER_MAX_RETRIES = int(os.getenv("TOOL_FILE_READER_MAX_RETRIES", "2"))
 TOOL_LIST_FILES_MAX_RETRIES = int(os.getenv("TOOL_LIST_FILES_MAX_RETRIES", "2"))
-TOOL_FILE_READER_DEFAULT_LINE_COUNT = int(os.getenv("TOOL_FILE_READER_DEFAULT_LINE_COUNT", "200"))
 
 # HTTP Retry Client Settings
 HTTP_RETRY_MAX_ATTEMPTS = int(os.getenv("HTTP_RETRY_MAX_ATTEMPTS", "5"))
