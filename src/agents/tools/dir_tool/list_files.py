@@ -6,6 +6,7 @@ from typing import Any, List, Optional
 from opentelemetry import trace
 from pydantic_ai import Tool
 
+import config
 from utils import Logger
 
 
@@ -229,7 +230,7 @@ class ListFilesTool:
         self.ignored_extensions = ignored_extensions or []
 
     def get_tool(self):
-        return Tool(self._run, name="List-Files-Tool", takes_ctx=False, max_retries=2)
+        return Tool(self._run, name="List-Files-Tool", takes_ctx=False, max_retries=config.TOOL_LIST_FILES_MAX_RETRIES)
 
     def _run(self, directory: str) -> Any:
         """List files in a directory recursively, grouping them by directory.

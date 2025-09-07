@@ -212,9 +212,9 @@ class AnalyzerAgent:
         )
 
         settings = ModelSettings(
-            temperature=0.0,
-            max_tokens=8192,
-            timeout=180,
+            temperature=config.ANALYZER_LLM_TEMPERATURE,
+            max_tokens=config.ANALYZER_LLM_MAX_TOKENS,
+            timeout=config.ANALYZER_LLM_TIMEOUT,
             parallel_tool_calls=config.ANALYZER_PARALLEL_TOOL_CALLS,
         )
 
@@ -229,7 +229,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=AnalyzerResult,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.structure_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -247,7 +247,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=str,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.data_flow_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -265,7 +265,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=str,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.dependency_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -283,7 +283,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=str,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.request_flow_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -301,7 +301,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=AnalyzerResult,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.api_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
