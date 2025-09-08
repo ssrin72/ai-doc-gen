@@ -20,6 +20,7 @@ def str_to_bool(value: str) -> bool:
     else:
         raise ValueError(f"Invalid boolean value: {value}")
 
+VERSION = os.getenv("APP_VERSION", "1.2.0")
 
 # Analyzer
 ANALYZER_LLM_MODEL = os.environ["ANALYZER_LLM_MODEL"]
@@ -60,7 +61,6 @@ GITLAB_OAUTH_TOKEN = os.getenv("GITLAB_OAUTH_TOKEN")
 # General
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
-VERSION = os.getenv("APP_VERSION", "1.0.0")
 
 CONSOLE_LOG_LEVEL = getattr(logging, os.getenv("CONSOLE_LOG_LEVEL", "DEBUG").upper())
 FILE_LOG_LEVEL = getattr(logging, os.getenv("FILE_LOG_LEVEL", "INFO").upper())
