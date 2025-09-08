@@ -123,9 +123,14 @@ class AnalyzerAgent:
         # Log results for each agent
         for i, result in enumerate(results):
             if isinstance(result, Exception):
-                Logger.error(f"Agent {i} failed: {result}")
+                Logger.error(
+                    f"Agent {tasks[i].agent.name} failed: {result}",
+                    exc_info=True,
+                )
             else:
-                Logger.info(f"Agent {i} completed successfully")
+                Logger.info(
+                    f"Agent {tasks[i].agent.name} completed successfully",
+                )
 
         self.validate_succession(analysis_files)
 
@@ -135,10 +140,23 @@ class AnalyzerAgent:
             if not file.exists():
                 missing_files.append(file)
 
-        if missing_files:
-            missing_files_str = ", ".join([str(file) for file in missing_files])
-            Logger.warning(f"Some analysis files not found: {missing_files_str}")
-            raise ValueError(f"Some analysis files not found: {missing_files_str}")
+        if not missing_files:
+            # All files exist - complete success
+            Logger.info(f"All {len(analysis_files)} analysis files generated successfully")
+            return
+
+        if len(missing_files) == len(analysis_files):
+            # ALL files missing - complete failure
+            Logger.error("Complete analysis failure: no analysis files were generated")
+            raise ValueError("Complete analysis failure: no analysis files were generated")
+
+        # SOME files missing - partial success, log warning but continue
+        missing_files_str = ", ".join([str(file) for file in missing_files])
+        successful_count = len(analysis_files) - len(missing_files)
+        Logger.warning(
+            f"Partial analysis success: {successful_count}/{len(analysis_files)} files generated. Missing: {missing_files_str}"
+        )
+        # Continue without raising error - partial results are better than no results
 
     async def _run_agent(self, agent: Agent, user_prompt: str, file_path: Path):
         trace.get_current_span().add_event(name=f"Running {agent.name}", attributes={"agent_name": agent.name})
@@ -194,9 +212,9 @@ class AnalyzerAgent:
         )
 
         settings = ModelSettings(
-            temperature=0.0,
-            max_tokens=8192,
-            timeout=180,
+            temperature=config.ANALYZER_LLM_TEMPERATURE,
+            max_tokens=config.ANALYZER_LLM_MAX_TOKENS,
+            timeout=config.ANALYZER_LLM_TIMEOUT,
             parallel_tool_calls=config.ANALYZER_PARALLEL_TOOL_CALLS,
         )
 
@@ -211,7 +229,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=AnalyzerResult,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.structure_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -229,7 +247,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=str,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.data_flow_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -247,7 +265,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=str,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.dependency_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -265,7 +283,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=str,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.request_flow_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
@@ -283,7 +301,7 @@ class AnalyzerAgent:
             model=model,
             model_settings=model_settings,
             output_type=AnalyzerResult,
-            retries=2,
+            retries=config.ANALYZER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.api_analyzer.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),

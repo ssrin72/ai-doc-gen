@@ -3,6 +3,7 @@ import os
 from opentelemetry import trace
 from pydantic_ai import ModelRetry, Tool
 
+import config
 from utils import Logger
 
 
@@ -11,7 +12,7 @@ class FileReadTool:
         pass
 
     def get_tool(self):
-        return Tool(self._run, name="Read-File", takes_ctx=False, max_retries=2)
+        return Tool(self._run, name="Read-File", takes_ctx=False, max_retries=config.TOOL_FILE_READER_MAX_RETRIES)
 
     def _run(self, file_path: str, line_number: int = 0, line_count: int = 200) -> str:
         """Read a file and return its contents.

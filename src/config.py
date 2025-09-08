@@ -20,6 +20,7 @@ def str_to_bool(value: str) -> bool:
     else:
         raise ValueError(f"Invalid boolean value: {value}")
 
+VERSION = os.getenv("APP_VERSION", "1.2.0")
 
 # Analyzer
 ANALYZER_LLM_MODEL = os.environ["ANALYZER_LLM_MODEL"]
@@ -27,11 +28,23 @@ ANALYZER_LLM_BASE_URL = os.environ["ANALYZER_LLM_BASE_URL"]
 ANALYZER_LLM_API_KEY = os.environ["ANALYZER_LLM_API_KEY"]
 ANALYZER_PARALLEL_TOOL_CALLS = str_to_bool(os.getenv("ANALYZER_PARALLEL_TOOL_CALLS", "true"))
 
+# Analyzer Agent Settings
+ANALYZER_AGENT_RETRIES = int(os.getenv("ANALYZER_AGENT_RETRIES", "2"))
+ANALYZER_LLM_TIMEOUT = int(os.getenv("ANALYZER_LLM_TIMEOUT", "180"))
+ANALYZER_LLM_MAX_TOKENS = int(os.getenv("ANALYZER_LLM_MAX_TOKENS", "8192"))
+ANALYZER_LLM_TEMPERATURE = float(os.getenv("ANALYZER_LLM_TEMPERATURE", "0.0"))
+
 # Documenter
 DOCUMENTER_LLM_MODEL = os.environ["DOCUMENTER_LLM_MODEL"]
 DOCUMENTER_LLM_BASE_URL = os.environ["DOCUMENTER_LLM_BASE_URL"]
 DOCUMENTER_LLM_API_KEY = os.environ["DOCUMENTER_LLM_API_KEY"]
 DOCUMENTER_PARALLEL_TOOL_CALLS = str_to_bool(os.getenv("DOCUMENTER_PARALLEL_TOOL_CALLS", "true"))
+
+# Documenter Agent Settings
+DOCUMENTER_AGENT_RETRIES = int(os.getenv("DOCUMENTER_AGENT_RETRIES", "2"))
+DOCUMENTER_LLM_TIMEOUT = int(os.getenv("DOCUMENTER_LLM_TIMEOUT", "180"))
+DOCUMENTER_LLM_MAX_TOKENS = int(os.getenv("DOCUMENTER_LLM_MAX_TOKENS", "8192"))
+DOCUMENTER_LLM_TEMPERATURE = float(os.getenv("DOCUMENTER_LLM_TEMPERATURE", "0.0"))
 
 # Langfuse
 ENABLE_LANGFUSE = str_to_bool(os.getenv("ENABLE_LANGFUSE", "false"))
@@ -48,10 +61,19 @@ GITLAB_OAUTH_TOKEN = os.getenv("GITLAB_OAUTH_TOKEN")
 # General
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
-VERSION = os.getenv("APP_VERSION", "1.0.0")
 
 CONSOLE_LOG_LEVEL = getattr(logging, os.getenv("CONSOLE_LOG_LEVEL", "DEBUG").upper())
 FILE_LOG_LEVEL = getattr(logging, os.getenv("FILE_LOG_LEVEL", "INFO").upper())
+
+# Agent Tools Settings
+TOOL_FILE_READER_MAX_RETRIES = int(os.getenv("TOOL_FILE_READER_MAX_RETRIES", "2"))
+TOOL_LIST_FILES_MAX_RETRIES = int(os.getenv("TOOL_LIST_FILES_MAX_RETRIES", "2"))
+
+# HTTP Retry Client Settings
+HTTP_RETRY_MAX_ATTEMPTS = int(os.getenv("HTTP_RETRY_MAX_ATTEMPTS", "5"))
+HTTP_RETRY_MULTIPLIER = int(os.getenv("HTTP_RETRY_MULTIPLIER", "1"))
+HTTP_RETRY_MAX_WAIT_PER_ATTEMPT = int(os.getenv("HTTP_RETRY_MAX_WAIT_PER_ATTEMPT", "60"))
+HTTP_RETRY_MAX_TOTAL_WAIT = int(os.getenv("HTTP_RETRY_MAX_TOTAL_WAIT", "300"))
 
 # --------------------------
 # Helper Function

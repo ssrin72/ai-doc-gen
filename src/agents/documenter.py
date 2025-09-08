@@ -151,9 +151,9 @@ class DocumenterAgent:
             )
 
         settings = ModelSettings(
-            temperature=0.0,
-            max_tokens=8192,
-            timeout=180,
+            temperature=config.DOCUMENTER_LLM_TEMPERATURE,
+            max_tokens=config.DOCUMENTER_LLM_MAX_TOKENS,
+            timeout=config.DOCUMENTER_LLM_TIMEOUT,
             parallel_tool_calls=config.DOCUMENTER_PARALLEL_TOOL_CALLS,
         )
 
@@ -168,7 +168,7 @@ class DocumenterAgent:
             model=model,
             model_settings=model_settings,
             output_type=DocumenterResult,
-            retries=2,
+            retries=config.DOCUMENTER_AGENT_RETRIES,
             system_prompt=self._render_prompt("agents.documenter.system_prompt"),
             tools=[
                 FileReadTool().get_tool(),
