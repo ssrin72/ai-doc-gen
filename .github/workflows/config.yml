@@ -1,0 +1,38 @@
+# .ai/config.yaml
+
+# Configuration for the analysis phase
+analyze:
+  # You can exclude certain analyses to speed up the process
+  exclude:
+    # - code_structure
+    # - data_flow
+    # - dependencies
+    # - request_flow
+    # - api_analysis
+
+# Configuration for the documentation phase
+document:
+  # This tells the tool to use an existing README as context, if one exists
+  use_existing_readme: true
+
+  # Defines the sections to be included in the generated documentation
+  sections:
+    - title: "High-level Summary"
+    - title: "Architecture"
+    - title: "Code Structure"
+    - title: "Data Flow"
+    - title: "Dependencies"
+    - title: "Request Flow"
+    - title: "API Analysis"
+    - title: "C4 Model"
+      # You can specify the level of detail for C4 models
+      # options: component, context, container, sequence
+      level: "component"
+
+# Settings for running in a CI/CD environment
+cronjob:
+  commit_recency_days: 1 # Analyze commits from the last day
+  working_paths:
+    # Define which directories to include or exclude
+    include: ["."] # IMPORTANT: Change "src" to your source code directory
+    exclude: ["tests", "docs"]
