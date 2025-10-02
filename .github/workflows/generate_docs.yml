@@ -1,0 +1,64 @@
+# .github/workflows/generate_docs.yml
+
+name: Generate AI Documentation
+
+# This workflow runs on every push to the main branch (e.g., after a PR merge)
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    # Grant permissions for the action to write back to the repository
+    permissions:
+      contents: write
+
+    steps:
+      # Step 1: Check out your repository's code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Clone the ai-doc-gen tool itself
+      - name: Clone ai-doc-gen repository
+        uses: actions/checkout@v4
+        with:
+          repository: divar-ir/ai-doc-gen
+          path: ./ai-doc-gen-tool
+
+      # Step 3: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Step 4: Install the tool's dependencies
+      - name: Install dependencies
+        run: |
+          cd ./ai-doc-gen-tool
+          pip install -e .
+          cd ..
+
+      # Step 5: Run the analysis and documentation generation
+      # It analyzes the code and generates the docs in '.ai/docs/README.md'
+      - name: Run AI Doc Gen
+        run: |
+          cd ./ai-doc-gen-tool
+          python src/main.py analyze --repo-path ..
+          python src/main.py document --repo-path ..
+          cd ..
+        env:
+          # Use the secret you created
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      # Step 6: Commit the updated documentation file
+      # This action automatically checks for changes and commits them
+      - name: Commit and Push Updated Docs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-generate documentation"
+          # The tool saves its output to this specific path
+          file_pattern: documentation.md
+          commit_user_name: "GitHub Actions Bot"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"

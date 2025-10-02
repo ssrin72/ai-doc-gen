@@ -8,8 +8,6 @@ from pydantic import BaseModel, Field
 from pydantic_ai import Agent
 from pydantic_ai.models import Model
 from pydantic_ai.models.gemini import GeminiModel
-from pydantic_ai.models.openai import OpenAIModel
-from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.settings import ModelSettings
 
 import config
@@ -131,24 +129,14 @@ class DocumenterAgent:
         base_url = config.DOCUMENTER_LLM_BASE_URL
         api_key = config.DOCUMENTER_LLM_API_KEY
 
-        if "gemini" in model_name:
-            model = GeminiModel(
-                model_name=model_name,
-                provider=CustomGeminiGLA(
-                    api_key=api_key,
-                    base_url=base_url,
-                    http_client=retrying_http_client,
-                ),
-            )
-        else:
-            model = OpenAIModel(
-                model_name=model_name,
-                provider=OpenAIProvider(
-                    base_url=base_url,
-                    api_key=api_key,
-                    http_client=retrying_http_client,
-                ),
-            )
+        model = GeminiModel(
+            model_name=model_name,
+            provider=CustomGeminiGLA(
+                api_key=api_key,
+                base_url=base_url,
+                http_client=retrying_http_client,
+            ),
+        )
 
         settings = ModelSettings(
             temperature=config.DOCUMENTER_LLM_TEMPERATURE,

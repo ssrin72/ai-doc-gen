@@ -8,8 +8,8 @@ from pydantic import BaseModel, Field
 from pydantic_ai import Agent, UnexpectedModelBehavior
 from pydantic_ai.agent import AgentRunResult
 from pydantic_ai.models import Model
-from pydantic_ai.models.openai import OpenAIModel
-from pydantic_ai.providers.openai import OpenAIProvider
+from pydantic_ai.models.gemini import GeminiModel
+from pydantic_ai.providers.gemini import GeminiProvider
 from pydantic_ai.settings import ModelSettings
 
 import config
@@ -202,9 +202,9 @@ class AnalyzerAgent:
     def _llm_model(self) -> Tuple[Model, ModelSettings]:
         retrying_http_client = create_retrying_client()
 
-        model = OpenAIModel(
+        model = GeminiModel(
             model_name=config.ANALYZER_LLM_MODEL,
-            provider=OpenAIProvider(
+            provider=GeminiProvider(
                 base_url=config.ANALYZER_LLM_BASE_URL,
                 api_key=config.ANALYZER_LLM_API_KEY,
                 http_client=retrying_http_client,
