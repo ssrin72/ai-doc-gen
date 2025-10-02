@@ -1,0 +1,47 @@
+name: Generate Documentation on Merge (Template for Target Repo)
+
+on:
+  push:
+    branches:
+      - main # Change to your default branch (e.g., 'master')
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to commit generated documentation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Crucial for initializing the AI Documenter submodule
+          fetch-depth: 0 # Fetch all history for git-auto-commit-action
+          token: ${{ secrets.GH_TOKEN }} # Or a PAT with repo scope, if using a private repo/submodule
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Ensure this matches your project's Python version
+
+      - name: Install dependencies for AI Documenter
+        # Assuming the submodule is named 'ai-documenter' and is in the root of your target repo
+        working-directory: ./ai-documenter
+        run: |
+          pip install --upgrade pip
+          pip install -e . # Installs the AI Documenter and its dependencies
+
+      - name: Generate documentation
+        # Run the document command from within the AI Documenter submodule
+        # --repo-path .. points to the root of the target repository
+        working-directory: ./ai-documenter
+        run: python src/main.py document --repo-path ..
+
+      - name: Commit and Push changes
+        # Automatically commits and pushes the generated README.md and .ai/docs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "[CI] Update documentation"
+          branch: main # Change to your default branch
+          file_pattern: "README.md .ai/docs/*" # Adjust if your documentation files are elsewhere
+          repository: . # Target current repository
